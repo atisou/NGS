@@ -12,9 +12,11 @@ __author__ = 'hatice'
 # python </path/2/concatenate.py/>   <folder_name_containing_files>  <output_R1.gz> <output_R2.gz>
 
 
+
 import os
 import re
 
+os.chdir('/home/hatice/Documents/Projects/Unifr/test')
 
 def screen_folder(folder_name):
     """ Function that lists the content/file_names/subfolders_names of a folder"""
@@ -29,12 +31,16 @@ def clean_folder(files_list, concatenated_file):
     l1 = concatenated_file.split('/')
     concatenated_file_wo_path = l1[-1]
     while concatenated_file_wo_path in files_list:
-        s = 'echo Found pre-existing concatenated file: deleting it...'
+        s = "echo Found pre-existing concatenated file with same name %s: deleting it..." % concatenated_file_wo_path
         os.system(s)
         s2 = 'rm %s' % concatenated_file
         os.system(s2)
         files_list.remove(concatenated_file_wo_path)
 
+    for name in files_list:
+        if re.search('R1|R2', name) == None:
+            print "found a non seq file %s: skipping it..." % name
+            files_list.remove(name)
 
     return files_list
 
@@ -105,11 +111,11 @@ def function_concatenate(folder_name, r1_concatenated_file, r2_concatenated_file
 
 
 #These lines of code allow the python script to be called directly from bash with the arguments of the main function. For this, need to define what the main function of the script is.
-if __name__ == "__main__":
-    import sys
-    function_concatenate(str(sys.argv[1]), str(sys.argv[2]),  str(sys.argv[3]))
+# if __name__ == "__main__":
+#     import sys
+#     function_concatenate(str(sys.argv[1]), str(sys.argv[2]),  str(sys.argv[3]))
 
 
 
-#function_concatenate('sample1', 'R1.gz', 'R2.gz')
+function_concatenate('sample1', 'R1.gz', 'R2.gz')
 
