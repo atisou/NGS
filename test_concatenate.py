@@ -6,8 +6,8 @@ import unittest
 
 class TestKnownValues(unittest.TestCase):
     def setUp(self):
-        self.list = ['User_sample1_file1_R1.gz', 'User_sampl1_file2_R1.gz',
-                     'User_sampl1_file2_R2.gz', 'User_sampl1_file2_R2.gz']
+        self.list = ['User_sample1_file1_R1.gz', 'User_sample1_file2_R1.gz',
+                     'User_sample1_file2_R2.gz', 'User_sample1_file2_R2.gz']
 
     def test_clean_folder(self):
         """test if the screening of a folder gives the right list of files"""
