@@ -16,7 +16,6 @@ __author__ = 'hatice'
 import os
 import re
 
-os.chdir('/home/hatice/Documents/Projects/Unifr/test')
 
 def screen_folder(folder_name):
     """ Function that lists the content/file_names/subfolders_names of a folder"""
