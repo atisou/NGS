@@ -4,27 +4,37 @@ __author__ = 'hatice'
 
 # This is a script, which aims to concatenate the sequencing files of sample based on their reads types. There are 2 types of reads: R1 and R2. The idea is to merge all the R1 sequencing files of a sample together, and do the same for the R2 sequencing files of the same sample. Finally, apply this to all the sequencing samples of the experiment. This script assumes that the sample folder contains only sequencing files.
 
+#########
+# Usage:#
+#########
+# cd in working directory, where the samples folders are located.
+# type:
+# python </path/2/concatenate.py/>   <folder_name_containing_files>  <output_R1.gz> <output_R2.gz>
+
+
 import os
 import re
 
 
-def screen_folder(path, folder_name):
-    """ Function that lists the content/file_names of a folder"""
+def screen_folder(folder_name):
+    """ Function that lists the content/file_names/subfolders_names of a folder"""
 
-    folder = path + folder_name + '/'
-    files_list = os.listdir(folder)
-    return files_list
+    content_list = os.listdir(folder_name)
+    return content_list  #this is not full path file/foldernames list but only file/foldernames
 
 
-def clean_folder(files_list, readtype):
+def clean_folder(files_list, concatenated_file):
     """ Function to remove concatenated files that could exist already in sample folder. This would be the case if re-run this script."""
 
-    concatenated_file = str(readtype) + '.gz'
-
-    while concatenated_file in files_list:
+    l1 = concatenated_file.split('/')
+    concatenated_file_wo_path = l1[-1]
+    while concatenated_file_wo_path in files_list:
         s = 'echo Found pre-existing concatenated file: deleting it...'
         os.system(s)
-        files_list.remove(concatenated_file)
+        s2 = 'rm %s' % concatenated_file
+        os.system(s2)
+        files_list.remove(concatenated_file_wo_path)
+
 
     return files_list
 
@@ -52,59 +62,54 @@ def make_reads_list(files_list, read_type):
     return list_per_read
 
 
-def zip_merge(path, read_type, filename):
-    """Function that calls a bash function from the terminal. This bash function is gzip that can concatenate directly the gz files into a merged gz file"""
+def zip_merge(infile, outfile):
+    """Function that calls the cat bash function from the terminal. The advantage of cat is that it can be used directly on gz files without decompressing them. The disadvantage of cat is that it concatenates without zipping, therefore if the input files are not zipped, the output file won't be neither. The alternative would be gzip -c."""
 
-    infile = path + filename
-    outfile = path + read_type + '.gz'
     # Use cat instead of gzip -c, since sequencing files could be gz or not
     s = 'cat %s >> %s' % (infile, outfile)
     print s
     os.system(s)
 
 
-def apply_zip(path, read_type, type_list):
-    """Loop function: apply the zip function to each file in the read type container, i.e R1 and R2 files lists"""
 
-    for type_file in type_list:
-        zip_merge(path, read_type, type_file)
-
-
-
-def concatenate_sample_files_per_read_type(experiment_path, experiment_name, read_type):
+def concatenate_sample_files_per_read_type(folder_name, concatenated_file,read_type):
     """Main function that loops through each sample folder and applies the gzip by reads type. R1.gz and R2.gz files are created for each sample."""
 
-    samples_names = screen_folder(experiment_path, experiment_name)
-    sample_path = experiment_path + experiment_name + '/'
-    for sample in samples_names:
-        # List all the files within a given sample folder
-        reads_files_per_sample = screen_folder(sample_path, sample)
-
-        # Remove from the files list the previously concatenated zip files if exist.
-        reads_files_per_sample = clean_folder(reads_files_per_sample, read_type)
-
-        # List files of a given sample folder ranged by read type
-        reads_list = make_reads_list(reads_files_per_sample, read_type)
-
-        # Do the zip of the R1 or R2 files, within a given folder of sample
-        path = sample_path + sample + '/'
-        apply_zip(path, read_type, reads_list)
+    # List all the files within a given sample folder
+    files_list = screen_folder(folder_name)
 
 
+    # Remove from the files list the previously concatenated zip files if exist.
+    reads_files_per_sample = clean_folder(files_list, concatenated_file)
 
-def function_concatenate(experiment_path, experiment_name):
+    # List files of a given sample folder ranged by read type
+    reads_list = make_reads_list(reads_files_per_sample, read_type)
 
-    for read_type in ('R1', 'R2'):
-        concatenate_sample_files_per_read_type(experiment_path, experiment_name, read_type)
+    # Do the zip of the R1 or R2 files, within a given folder of sample
+    for typespe_file in reads_list:
+        infile = folder_name + typespe_file
+        zip_merge(infile, concatenated_file)
+
+
+
+def function_concatenate(folder_name, r1_concatenated_file, r2_concatenated_file):
+
+    path = os.getcwd()
+    full_folder_name = path + '/' + folder_name + '/'
+    full_r1_concatenated_file = full_folder_name + r1_concatenated_file
+    full_r2_concatenated_file = full_folder_name + r2_concatenated_file
+
+    concatenate_sample_files_per_read_type(full_folder_name, full_r1_concatenated_file, 'R1')
+    concatenate_sample_files_per_read_type(full_folder_name, full_r2_concatenated_file, 'R2')
 
 
 
 #These lines of code allow the python script to be called directly from bash with the arguments of the main function. For this, need to define what the main function of the script is.
 if __name__ == "__main__":
     import sys
-    function_concatenate(str(sys.argv[1]), str(sys.argv[2]))
+    function_concatenate(str(sys.argv[1]), str(sys.argv[2]),  str(sys.argv[3]))
 
 
 
-# function_concatenate(experiment_path='/home/hatice/Documents/Projects/Unifr/', experiment_name='test')
+#function_concatenate('sample1', 'R1.gz', 'R2.gz')
 
