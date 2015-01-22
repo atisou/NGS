@@ -17,8 +17,10 @@ class TestKnownValues(unittest.TestCase):
 
 
         # A concatenated file already exists: check if clean_folder() removes it correctly
-        l2 = self.list.append('R1.gz')
+        l2 = self.list[:]
+        l2.append('R1.gz')
         self.assertNotEqual(l2, concatenate.clean_folder(files_list=self.list, readtype='R1'))
+        self.assertEqual(self.list, concatenate.clean_folder(files_list=l2, readtype='R1'))
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(TestKnownValues)
