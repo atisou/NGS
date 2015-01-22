@@ -18,14 +18,15 @@ import re
 
 
 def screen_folder(folder_name):
-    """ Function that lists the content/file_names/subfolders_names of a folder"""
+    """ Function that lists the content/file_names/subfolders_names of a folder. """
 
     content_list = os.listdir(folder_name)
     return content_list  #this is not full path file/foldernames list but only file/foldernames
 
 
 def clean_folder(files_list, concatenated_file):
-    """ Function to remove concatenated files that could exist already in sample folder. This would be the case if re-run this script."""
+    """ Function to remove concatenated files that could exist already in sample folder. This would be the case if re-run this script.
+     This function also skips all the non-seq files, i.e filenames without R1/R2 descriptor, like samples.csv etc"""
 
     l1 = concatenated_file.split('/')
     concatenated_file_wo_path = l1[-1]
@@ -46,7 +47,7 @@ def clean_folder(files_list, concatenated_file):
 
 
 def make_reads_list(files_list, read_type):
-    """Function that separates the files by read type (R1 or R2), within a given sample folder"""
+    """ Function that separates the files by read type (R1 or R2), within a given sample folder """
 
     # Prepare the lists that will hold reads type specific files, for a given sample folder
     list_per_read = []
@@ -68,7 +69,7 @@ def make_reads_list(files_list, read_type):
 
 
 def zip_merge(infile, outfile):
-    """Function that calls the cat bash function from the terminal. The advantage of cat is that it can be used directly on gz files without decompressing them. The disadvantage of cat is that it concatenates without zipping, therefore if the input files are not zipped, the output file won't be neither. The alternative would be gzip -c."""
+    """ Function that calls the cat bash function from the terminal. The advantage of cat is that it can be used directly on gz files without decompressing them. The disadvantage of cat is that it concatenates without zipping, therefore if the input files are not zipped, the output file won't be neither. The alternative would be gzip -c. """
 
     # Use cat instead of gzip -c, since sequencing files could be gz or not
     s = 'cat %s >> %s' % (infile, outfile)
@@ -78,7 +79,7 @@ def zip_merge(infile, outfile):
 
 
 def concatenate_sample_files_per_read_type(folder_name, concatenated_file,read_type):
-    """Main function that loops through each sample folder and applies the gzip by reads type. R1.gz and R2.gz files are created for each sample."""
+    """ Function that applies all the previous functions together. An R1.gz or R2.gz file is created for a given sample. """
 
     # List all the files within a given sample folder
     files_list = screen_folder(folder_name)
@@ -98,6 +99,7 @@ def concatenate_sample_files_per_read_type(folder_name, concatenated_file,read_t
 
 
 def function_concatenate(folder_name, r1_concatenated_file, r2_concatenated_file):
+    """ Main function that creates both the gz file for R1 and for R2 data."""
 
     path = os.getcwd()
     full_folder_name = path + '/' + folder_name + '/'
