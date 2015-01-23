@@ -5,4 +5,4 @@ import cProfile
 import os
 
 os.chdir("/path2wd/here")
-cProfile.run('concatenate.function_concatenate("sample3", "R1.gz", "R2.gz")')
+cProfile.run('concatenate.function_concatenate("sample_folder_name", "R1_outfile", "R2_outfile")')
