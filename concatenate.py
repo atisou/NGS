@@ -28,14 +28,26 @@ def clean_folder(files_list, concatenated_file):
     """ Function to remove concatenated files that could exist already in sample folder. This would be the case if re-run this script.
      This function also skips all the non-seq files, i.e filenames without R1/R2 descriptor, like samples.csv etc"""
 
-    l1 = concatenated_file.split('/')
-    concatenated_file_wo_path = l1[-1]
-    while concatenated_file_wo_path in files_list:
-        s = "echo Found pre-existing concatenated file with same name %s: deleting it..." % concatenated_file_wo_path
-        os.system(s)
-        s2 = 'rm %s' % concatenated_file
-        os.system(s2)
-        files_list.remove(concatenated_file_wo_path)
+    # The object concatenated_file inherits the full path name from the main method (except in the unittest)
+    if '/' in concatenated_file:
+        l1 = concatenated_file.split('/')
+    try:
+        concatenated_file_wo_path = l1[-1]
+    # This exception should be entered only during unittest (when the arg file is not in full path format)
+    except NameError:
+        print 'unittest: there was no path to split'
+        concatenated_file_wo_path = concatenated_file
+
+    try:
+        while concatenated_file_wo_path in files_list:
+            s = "echo Found pre-existing concatenated file with same name %s: deleting it..." % concatenated_file_wo_path
+            os.system(s)
+            s2 = 'rm %s' % concatenated_file
+            os.system(s2)
+            files_list.remove(concatenated_file_wo_path)
+    # This exception should be entered only during unittest (when the arg file is not in full path format)
+    except NameError:
+        print 'unittest: same file name (arg name and after-split name)'
 
     for name in files_list:
         if re.search('R1|R2', name) == None:
