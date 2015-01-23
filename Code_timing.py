@@ -4,5 +4,5 @@ import concatenate
 import cProfile
 import os
 
-os.chdir("/home/hatice/Documents/Projects/Unifr/test")
+os.chdir("/path2wd/here")
 cProfile.run('concatenate.function_concatenate("sample3", "R1.gz", "R2.gz")')
